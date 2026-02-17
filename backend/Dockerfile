@@ -4,7 +4,12 @@
 # ============================================
 
 # --- Stage 1: ビルドステージ ---
-FROM golang:1.22-alpine AS builder
+# TARGETARCH はBuildKitが自動設定 (amd64 / arm64)
+FROM --platform=$BUILDPLATFORM golang:1.22-alpine AS builder
+
+# BuildKit が自動注入するビルドプラットフォーム変数
+ARG TARGETARCH
+ARG TARGETOS=linux
 
 # セキュリティ: 非rootユーザーとして実行するための準備
 RUN apk add --no-cache git ca-certificates
@@ -18,7 +23,9 @@ RUN go mod download
 # ソースコードをコピーしてビルド
 COPY . .
 RUN go mod tidy
-RUN CGO_ENABLED=0 GOOS=linux \
+# CKAD学習ポイント: マルチアーキテクチャ対応ビルド
+# TARGETARCH は docker build 時のターゲットに応じて amd64 / arm64 が自動設定される
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
     go build -ldflags="-w -s" -o /app/server .
 
 # --- Stage 2: 実行ステージ ---
