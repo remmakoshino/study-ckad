@@ -1,0 +1,41 @@
+# ==============================================
+# ArgoCD Application: MongoDB
+# ==============================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mongodb
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: study-ckad
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: study-ckad
+
+  source:
+    # ★ ここをご自身のリポジトリURLに変更してください
+    repoURL: https://github.com/YOUR_USERNAME/study-ckad.git
+    targetRevision: main
+    path: k8s/charts/mongodb
+    helm:
+      valueFiles:
+        - values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+
+  syncPolicy:
+    automated:
+      prune: false       # DBは誤削除防止のためpruneを無効化
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

@@ -1,0 +1,29 @@
+# MongoDB Helm Chart デフォルト値
+replicaCount: 1
+
+image:
+  repository: mongo
+  tag: "7.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 27017
+
+auth:
+  rootUsername: admin
+  rootPassword: mongopassword
+  database: taskdb
+
+persistence:
+  enabled: true
+  storageClass: standard
+  size: 1Gi
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

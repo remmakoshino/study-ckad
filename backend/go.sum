@@ -1,0 +1,2 @@
+// go.sum は `go mod tidy` 実行時に自動生成されます。
+// ビルド時に `go mod tidy && go mod download` を実行してください。

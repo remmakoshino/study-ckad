@@ -1,0 +1,68 @@
+# Backend Helm Chart デフォルト値
+replicaCount: 2
+
+image:
+  repository: study-ckad-backend
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: study-ckad.local
+      paths:
+        - path: /api
+          pathType: Prefix
+  tls: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+env:
+  MONGODB_URI: "mongodb://mongodb:27017"
+  MONGODB_DATABASE: "taskdb"
+  PORT: "8080"
+
+serviceAccount:
+  create: true
+  name: backend-sa
+  annotations: {}
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+
+networkPolicy:
+  enabled: true
+
+probes:
+  liveness:
+    path: /healthz
+    port: 8080
+    initialDelaySeconds: 10
+    periodSeconds: 15
+  readiness:
+    path: /readyz
+    port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10

@@ -1,0 +1,50 @@
+# CKAD学習ポイント: CronJob - 定期バッチ処理
+# MongoDBのバックアップを定期的に実行するCronJob
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "backend.fullname" . }}-db-backup
+  labels:
+    {{- include "backend.labels" . | nindent 4 }}
+spec:
+  schedule: "0 2 * * *"  # 毎日午前2時に実行
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 300
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: mongodump
+              image: mongo:7.0
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "バックアップ開始: $(date)"
+                  mongodump --uri="$MONGODB_URI" \
+                    --db="$MONGODB_DATABASE" \
+                    --out="/backup/$(date +%Y%m%d_%H%M%S)"
+                  echo "バックアップ完了: $(date)"
+              env:
+                - name: MONGODB_URI
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "backend.fullname" . }}-secret
+                      key: mongodb-uri
+                - name: MONGODB_DATABASE
+                  valueFrom:
+                    configMapKeyRef:
+                      name: {{ include "backend.fullname" . }}-config
+                      key: MONGODB_DATABASE
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 256Mi

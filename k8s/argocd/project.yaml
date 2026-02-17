@@ -1,0 +1,44 @@
+# ==============================================
+# ArgoCD AppProject: study-ckad
+# プロジェクトレベルでリソースアクセスを制御
+# ==============================================
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: study-ckad
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: "CKAD学習用フルスタックプロジェクト"
+
+  # デプロイ先として許可するクラスタとNamespace
+  destinations:
+    - namespace: default
+      server: https://kubernetes.default.svc
+    - namespace: monitoring
+      server: https://kubernetes.default.svc
+    - namespace: ingress-nginx
+      server: https://kubernetes.default.svc
+
+  # ソースリポジトリの許可リスト
+  sourceRepos:
+    - "*"
+
+  # 許可するクラスタリソース
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+
+  # 許可するNamespaceリソース
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: "*"
+    - group: apps
+      kind: "*"
+    - group: networking.k8s.io
+      kind: "*"
+    - group: batch
+      kind: "*"
+    - group: autoscaling
+      kind: "*"

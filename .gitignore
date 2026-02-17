@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+frontend/dist/
+backend/server
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+
+# Helm
+*.tgz
+charts/*.lock

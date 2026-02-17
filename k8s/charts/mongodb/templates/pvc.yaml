@@ -1,0 +1,19 @@
+# CKAD学習ポイント: PersistentVolumeClaim
+# StatefulSetの場合は volumeClaimTemplates を使うため、
+# このファイルはスタンドアロンPVCの例として参考にしてください。
+#
+# StatefulSetに組み込まれた volumeClaimTemplates は
+# statefulset.yaml 内で定義されています。
+#
+# --- スタンドアロンPVCの参考例 ---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: mongodb-data-standalone
+# spec:
+#   accessModes:
+#     - ReadWriteOnce
+#   storageClassName: standard
+#   resources:
+#     requests:
+#       storage: 1Gi

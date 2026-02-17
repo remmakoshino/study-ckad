@@ -1,0 +1,43 @@
+# ==============================================
+# ArgoCD Application: Backend
+# Git リポジトリの状態をクラスタに自動同期
+# ==============================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: backend
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: study-ckad
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: study-ckad
+
+  source:
+    # ★ ここをご自身のリポジトリURLに変更してください
+    repoURL: https://github.com/YOUR_USERNAME/study-ckad.git
+    targetRevision: main
+    path: k8s/charts/backend
+    helm:
+      valueFiles:
+        - values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+
+  syncPolicy:
+    automated:
+      prune: true        # Git上で削除されたリソースをクラスタからも削除
+      selfHeal: true      # 手動変更をGitの状態に自動修正
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

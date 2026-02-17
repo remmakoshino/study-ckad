@@ -1,0 +1,215 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+  line-height: 1.6;
+}
+
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.app-header {
+  text-align: center;
+  padding: 30px 0;
+  border-bottom: 2px solid #326ce5;
+  margin-bottom: 30px;
+}
+
+.app-header h1 {
+  color: #326ce5;
+  font-size: 2rem;
+}
+
+.subtitle {
+  color: #666;
+  margin-top: 8px;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.form-section, .list-section {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-section h2, .list-section h2 {
+  color: #326ce5;
+  margin-bottom: 16px;
+  font-size: 1.3rem;
+}
+
+/* TaskForm */
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.task-form input,
+.task-form textarea {
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.task-form input:focus,
+.task-form textarea:focus {
+  outline: none;
+  border-color: #326ce5;
+}
+
+.task-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.task-form button {
+  padding: 10px 20px;
+  background-color: #326ce5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.task-form button:hover {
+  background-color: #2756b8;
+}
+
+.task-form button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+/* TaskList */
+.task-list {
+  list-style: none;
+}
+
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  transition: box-shadow 0.2s;
+}
+
+.task-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.task-info {
+  flex: 1;
+}
+
+.task-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.task-desc {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.task-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-in_progress {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.status-completed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.task-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: 16px;
+}
+
+.btn-status {
+  padding: 6px 12px;
+  border: 1px solid #326ce5;
+  background: white;
+  color: #326ce5;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-status:hover {
+  background-color: #326ce5;
+  color: white;
+}
+
+.btn-delete {
+  padding: 6px 12px;
+  border: 1px solid #dc3545;
+  background: white;
+  color: #dc3545;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-delete:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+.empty-message {
+  text-align: center;
+  color: #999;
+  padding: 40px 0;
+}
+
+.loading {
+  text-align: center;
+  color: #326ce5;
+  padding: 20px 0;
+}
+
+.error {
+  text-align: center;
+  color: #dc3545;
+  padding: 20px 0;
+}

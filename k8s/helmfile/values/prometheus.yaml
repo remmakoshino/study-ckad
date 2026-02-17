@@ -1,0 +1,48 @@
+# Prometheus Stack Helmfile Values
+prometheus:
+  prometheusSpec:
+    retention: 7d
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    # ServiceMonitor でBackendのメトリクスを自動収集
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+
+grafana:
+  enabled: true
+  adminUser: admin
+  adminPassword: admin
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  # デフォルトダッシュボードの有効化
+  defaultDashboardsEnabled: true
+  defaultDashboardsTimezone: Asia/Tokyo
+
+# Node Exporter
+nodeExporter:
+  enabled: true
+
+# kube-state-metrics
+kubeStateMetrics:
+  enabled: true

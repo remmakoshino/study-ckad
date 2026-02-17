@@ -1,0 +1,113 @@
+# ==============================================
+# Helmfile: 全リリースの一元管理
+# ==============================================
+# 使い方:
+#   helmfile sync    - 全リリースをデプロイ
+#   helmfile diff    - 差分確認
+#   helmfile apply   - 差分適用
+#   helmfile destroy - 全リリース削除
+# ==============================================
+
+repositories:
+  # Prometheus Community Charts
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
+  # Grafana Charts
+  - name: grafana
+    url: https://grafana.github.io/helm-charts
+  # ArgoCD Charts
+  - name: argo
+    url: https://argoproj.github.io/argo-helm
+  # cert-manager Charts
+  - name: jetstack
+    url: https://charts.jetstack.io
+  # Ingress NGINX
+  - name: ingress-nginx
+    url: https://kubernetes.github.io/ingress-nginx
+
+# ==============================================
+# リリース定義
+# ==============================================
+releases:
+  # ------------------------------------------
+  # 1. Ingress Controller (NGINX)
+  # ------------------------------------------
+  - name: ingress-nginx
+    namespace: ingress-nginx
+    createNamespace: true
+    chart: ingress-nginx/ingress-nginx
+    version: "4.10.0"
+    wait: true
+    timeout: 300
+
+  # ------------------------------------------
+  # 2. cert-manager (TLS証明書管理)
+  # ------------------------------------------
+  - name: cert-manager
+    namespace: cert-manager
+    createNamespace: true
+    chart: jetstack/cert-manager
+    version: "v1.14.4"
+    wait: true
+    timeout: 300
+    values:
+      - values/cert-manager.yaml
+
+  # ------------------------------------------
+  # 3. Prometheus Stack (Prometheus + Alertmanager)
+  # ------------------------------------------
+  - name: prometheus
+    namespace: monitoring
+    createNamespace: true
+    chart: prometheus-community/kube-prometheus-stack
+    version: "57.2.0"
+    wait: true
+    timeout: 600
+    values:
+      - values/prometheus.yaml
+
+  # ------------------------------------------
+  # 4. ArgoCD (GitOps Controller)
+  # ------------------------------------------
+  - name: argocd
+    namespace: argocd
+    createNamespace: true
+    chart: argo/argo-cd
+    version: "6.7.3"
+    wait: true
+    timeout: 600
+    values:
+      - values/argocd.yaml
+
+  # ------------------------------------------
+  # 5. MongoDB (データベース)
+  # ------------------------------------------
+  - name: mongodb
+    namespace: default
+    chart: ../charts/mongodb
+    wait: true
+    timeout: 300
+    values:
+      - values/mongodb.yaml
+
+  # ------------------------------------------
+  # 6. Backend (Go API)
+  # ------------------------------------------
+  - name: backend
+    namespace: default
+    chart: ../charts/backend
+    wait: true
+    timeout: 300
+    needs:
+      - default/mongodb
+
+  # ------------------------------------------
+  # 7. Frontend (React UI)
+  # ------------------------------------------
+  - name: frontend
+    namespace: default
+    chart: ../charts/frontend
+    wait: true
+    timeout: 300
+    needs:
+      - default/backend

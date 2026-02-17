@@ -1,0 +1,46 @@
+# ArgoCD Helmfile Values
+# UI, Server, Repo Server の設定
+server:
+  # Insecure モード（Minikube学習環境向け）
+  extraArgs:
+    - --insecure
+
+  ingress:
+    enabled: false
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+configs:
+  params:
+    server.insecure: true
+
+  repositories:
+    # このプロジェクトのリポジトリ（ローカル用設定例）
+    study-ckad:
+      url: https://github.com/YOUR_USERNAME/study-ckad.git
+      name: study-ckad
+      type: git
+
+controller:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+repoServer:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
