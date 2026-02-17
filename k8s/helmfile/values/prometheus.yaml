@@ -26,8 +26,8 @@ alertmanager:
 
 grafana:
   enabled: true
-  adminUser: admin
-  adminPassword: admin
+  # 認証情報はSOPS暗号化ファイル (secrets/grafana-secrets.yaml) で管理
+  # adminUser / adminPassword は secrets/grafana-secrets.yaml から注入
   resources:
     requests:
       cpu: 50m

@@ -37,6 +37,46 @@ controller:
       memory: 512Mi
 
 repoServer:
+  # ------------------------------------------
+  # SOPS復号化対応: helm-secrets プラグイン統合
+  # CKAD学習ポイント: GitOpsにおける秘密情報管理
+  # ------------------------------------------
+  # 1. 環境変数: SOPS が age 秘密鍵を参照する場所
+  env:
+    - name: HELM_SECRETS_BACKEND
+      value: sops
+    - name: SOPS_AGE_KEY_FILE
+      value: /helm-secrets-private-keys/key.txt
+
+  # 2. SOPS用 age秘密鍵をマウント
+  #    事前に kubectl -n argocd create secret generic helm-secrets-private-keys \
+  #      --from-file=key.txt=$HOME/.config/sops/age/keys.txt  で作成しておく
+  volumes:
+    - name: helm-secrets-private-keys
+      secret:
+        secretName: helm-secrets-private-keys
+        optional: true
+
+  volumeMounts:
+    - name: helm-secrets-private-keys
+      mountPath: /helm-secrets-private-keys
+      readOnly: true
+
+  # 3. initContainer で helm-secrets/sops/age をインストール
+  initContainers:
+    - name: install-helm-secrets
+      image: alpine/helm:3.14.3
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          helm plugin install https://github.com/jkroepke/helm-secrets --version v4.6.2 2>/dev/null || true
+          wget -qO /custom-tools/sops https://github.com/getsops/sops/releases/download/v3.11.0/sops-v3.11.0.linux.arm64
+          chmod +x /custom-tools/sops
+          wget -qO- https://github.com/FiloSottile/age/releases/download/v1.3.1/age-v1.3.1-linux-arm64.tar.gz | tar xz -C /custom-tools --strip-components=1 age/age age/age-keygen
+      volumeMounts:
+        - name: custom-tools
+          mountPath: /custom-tools
+
   resources:
     requests:
       cpu: 50m

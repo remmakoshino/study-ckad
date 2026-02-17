@@ -1,0 +1,22 @@
+# ==============================================
+# SOPS設定ファイル
+# CKAD学習ポイント: 秘密情報の暗号化管理
+# ==============================================
+# SOPSはYAML/JSON内の値のみを暗号化し、キー名は平文のまま保持します。
+# これにより、gitで差分管理が可能になります。
+#
+# 使い方:
+#   暗号化: sops -e -i ファイル名
+#   復号化: sops -d ファイル名
+#   編集:   sops ファイル名 (復号→エディタ→再暗号化)
+#
+# ★ 秘密鍵は ~/.config/sops/age/keys.txt に配置してください
+# ★ 秘密鍵は絶対にGitにコミットしないでください
+# ==============================================
+creation_rules:
+  # k8s/helmfile/values/secrets/ 配下のファイルを暗号化
+  - path_regex: k8s/helmfile/values/secrets/.*\.yaml$
+    age: age1s02kpsyqeuz62heh2ds7jvqxkex7xezhnjgr8ha6e4sudpyv49fqtuetht
+  # k8s/charts/**/secrets/ 配下のファイルを暗号化
+  - path_regex: k8s/charts/.*/secrets/.*\.yaml$
+    age: age1s02kpsyqeuz62heh2ds7jvqxkex7xezhnjgr8ha6e4sudpyv49fqtuetht

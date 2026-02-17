@@ -6,6 +6,11 @@
 #   helmfile diff    - 差分確認
 #   helmfile apply   - 差分適用
 #   helmfile destroy - 全リリース削除
+#
+# SOPS暗号化シークレットの使用:
+#   helm-secrets プラグインにより、secrets:// プレフィックス付きの
+#   valuesファイルは自動的にSOPSで復号されます。
+#   秘密鍵の配置: ~/.config/sops/age/keys.txt
 # ==============================================
 
 repositories:
@@ -67,6 +72,9 @@ releases:
     timeout: 600
     values:
       - values/prometheus.yaml
+    # SOPS暗号化シークレット (Grafana認証情報)
+    secrets:
+      - values/secrets/grafana-secrets.yaml
 
   # ------------------------------------------
   # 4. ArgoCD (GitOps Controller)
@@ -91,6 +99,9 @@ releases:
     timeout: 300
     values:
       - values/mongodb.yaml
+    # SOPS暗号化シークレット (helm-secretsプラグインが自動復号)
+    secrets:
+      - values/secrets/mongodb-secrets.yaml
 
   # ------------------------------------------
   # 6. Backend (Go API)

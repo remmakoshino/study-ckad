@@ -318,12 +318,17 @@ study-ckad/
 │   │       ├── prometheus.yaml
 │   │       ├── grafana.yaml
 │   │       ├── cert-manager.yaml
-│   │       └── mongodb.yaml
+│   │       ├── mongodb.yaml
+│   │       └── secrets/               # SOPS暗号化シークレット
+│   │           ├── mongodb-secrets.yaml   # MongoDB認証情報(暗号化済)
+│   │           └── grafana-secrets.yaml   # Grafana認証情報(暗号化済)
 │   └── argocd/                        # ArgoCD Application定義
 │       ├── project.yaml
+│       ├── sops-config.yaml           # ArgoCD SOPS復号化設定
 │       ├── app-backend.yaml
 │       ├── app-frontend.yaml
 │       └── app-mongodb.yaml
+├── .sops.yaml                         # SOPS暗号化ルール定義
 └── scripts/                           # セットアップスクリプト
     ├── setup.sh                       # macOS / Linux用
     └── setup.ps1                      # Windows PowerShell用
@@ -387,20 +392,37 @@ eval $(minikube docker-env)
 docker build -t study-ckad-backend:latest ./backend
 docker build -t study-ckad-frontend:latest ./frontend
 
-# 5. Helmfileで全コンポーネントをデプロイ
+# 5. SOPS用 ageキーペアのセットアップ（初回のみ）
+#    ★ 既にキーがある場合はスキップ
+age-keygen -o ~/.config/sops/age/keys.txt
+#    公開鍵を .sops.yaml に設定（age1xxx... の部分）
+#    ★ チームで共有する場合は公開鍵のみを .sops.yaml に記載
+
+# 6. SOPS暗号化シークレットの編集（パスワード変更時）
+#    復号→エディタで編集→自動再暗号化
+sops k8s/helmfile/values/secrets/mongodb-secrets.yaml
+sops k8s/helmfile/values/secrets/grafana-secrets.yaml
+
+# 7. ArgoCD用にage秘密鍵をKubernetes Secretとして登録
+kubectl create namespace argocd 2>/dev/null || true
+kubectl -n argocd create secret generic helm-secrets-private-keys \
+  --from-file=key.txt=$HOME/.config/sops/age/keys.txt
+
+# 8. Helmfileで全コンポーネントをデプロイ
+#    helm-secretsプラグインが自動的にSOPSファイルを復号します
 cd k8s/helmfile
 helmfile sync
 
-# 6. ArgoCD Application定義の適用
+# 9. ArgoCD Application定義の適用
 kubectl apply -f ../argocd/
 
-# 7. ArgoCD UIアクセス
+# 10. ArgoCD UIアクセス
 # 初期パスワード取得
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 # ポートフォワード
 kubectl port-forward svc/argocd-server -n argocd 8080:443 &
 
-# 8. Grafana UIアクセス
+# 11. Grafana UIアクセス
 kubectl port-forward svc/prometheus-grafana -n monitoring 3000:80 &
 
 # 9. アプリケーションへアクセス

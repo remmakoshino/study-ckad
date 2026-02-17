@@ -20,6 +20,12 @@ Thumbs.db
 .env
 .env.local
 
+# SOPS: age秘密鍵は絶対にコミットしない
+# ★ SOPS暗号化されたファイル (*.yaml) はコミットしてOK
+keys.txt
+*.age-key
+/tmp/study-ckad-age-key.txt
+
 # Helm
 *.tgz
 charts/*.lock

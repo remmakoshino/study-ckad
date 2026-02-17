@@ -10,9 +10,12 @@ service:
   type: ClusterIP
   port: 27017
 
+# 認証情報はSOPS暗号化シークレットで管理
+# Helmfile経由の場合: secrets/mongodb-secrets.yaml から注入
+# ★ デフォルト値は開発用。本番環境では必ずSOPSで暗号化した値を使用してください
 auth:
-  rootUsername: admin
-  rootPassword: mongopassword
+  rootUsername: ""
+  rootPassword: ""
   database: taskdb
 
 persistence:

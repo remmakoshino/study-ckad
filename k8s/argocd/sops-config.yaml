@@ -1,0 +1,37 @@
+# ==============================================
+# ArgoCD + SOPS 復号化設定
+# ==============================================
+# CKAD学習ポイント:
+#   ArgoCD repo-server に helm-secrets + SOPS を統合し、
+#   Gitリポジトリ内のSOPS暗号化ファイルをデプロイ時に自動復号します。
+#
+# セットアップ手順:
+#   1. age秘密鍵をKubernetes Secretとして登録:
+#      kubectl -n argocd create secret generic helm-secrets-private-keys \
+#        --from-file=key.txt=$HOME/.config/sops/age/keys.txt
+#
+#   2. ArgoCD valuesにこの設定を反映してhelmfile sync
+#
+# 参考: https://github.com/jkroepke/helm-secrets/wiki/ArgoCD-Integration
+# ==============================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-sops-config
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: argocd
+data:
+  # SOPS + helm-secrets のインストールスクリプト
+  # ArgoCD repo-server の initContainer で実行されます
+  install-helm-secrets.sh: |
+    #!/bin/sh
+    set -e
+    echo "Installing helm-secrets plugin..."
+    helm plugin install https://github.com/jkroepke/helm-secrets --version v4.6.2 || true
+    echo "Installing SOPS..."
+    wget -qO /custom-tools/sops https://github.com/getsops/sops/releases/download/v3.11.0/sops-v3.11.0.linux.arm64
+    chmod +x /custom-tools/sops
+    echo "Installing age..."
+    wget -qO- https://github.com/FiloSottile/age/releases/download/v1.3.1/age-v1.3.1-linux-arm64.tar.gz | tar xz -C /custom-tools --strip-components=1 age/age age/age-keygen
+    echo "Done."

@@ -6,9 +6,10 @@ image:
   tag: "7.0"
   pullPolicy: IfNotPresent
 
+# 認証情報はSOPS暗号化ファイル (secrets/mongodb-secrets.yaml) で管理
+# ★ パスワードはvaluesにハードコードしないでください
 auth:
-  rootUsername: admin
-  rootPassword: mongopassword
+  # rootUsername / rootPassword は secrets/mongodb-secrets.yaml から注入
   database: taskdb
 
 persistence:

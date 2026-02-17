@@ -1,7 +1,9 @@
 # Grafana 追加設定（Prometheus Stack内蔵のGrafanaに上書き）
 # 個別にGrafana Chartを使用する場合のvaluesファイル
-adminUser: admin
-adminPassword: admin
+# 認証情報はSOPS暗号化ファイル (secrets/grafana-secrets.yaml) で管理
+# adminUser / adminPassword は secrets/grafana-secrets.yaml から注入
+# adminUser: <SOPS encrypted>
+# adminPassword: <SOPS encrypted>
 
 persistence:
   enabled: false
