@@ -9,8 +9,8 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # 依存関係を先にインストール（キャッシュ活用）
-COPY package.json package-lock.json* ./
-RUN npm ci
+COPY package.json ./
+RUN npm install
 
 # ソースをコピーしてビルド
 COPY . .

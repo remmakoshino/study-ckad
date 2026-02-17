@@ -12,12 +12,13 @@ RUN apk add --no-cache git ca-certificates
 WORKDIR /app
 
 # 依存関係を先にコピー（Dockerキャッシュ活用）
-COPY go.mod go.sum ./
+COPY go.mod ./
 RUN go mod download
 
 # ソースコードをコピーしてビルド
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+RUN go mod tidy
+RUN CGO_ENABLED=0 GOOS=linux \
     go build -ldflags="-w -s" -o /app/server .
 
 # --- Stage 2: 実行ステージ ---

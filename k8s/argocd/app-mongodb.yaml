@@ -15,7 +15,7 @@ spec:
 
   source:
     # ★ ここをご自身のリポジトリURLに変更してください
-    repoURL: https://github.com/YOUR_USERNAME/study-ckad.git
+    repoURL: https://github.com/remmakoshino/study-ckad.git
     targetRevision: main
     path: k8s/charts/mongodb
     helm:

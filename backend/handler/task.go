@@ -1,200 +1,197 @@
 package handler
-package handler
 
 import (
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}	w.WriteHeader(http.StatusNoContent)	}		return		http.Error(w, `{"error": "タスクが見つかりません"}`, http.StatusNotFound)	if result.DeletedCount == 0 {	}		return		http.Error(w, `{"error": "タスクの削除に失敗しました"}`, http.StatusInternalServerError)		log.Printf("タスク削除エラー: %v", err)	if err != nil {	result, err := collection.DeleteOne(ctx, bson.M{"_id": id})	defer cancel()	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)	collection := db.GetCollection(collectionName)	}		return		http.Error(w, `{"error": "無効なIDです"}`, http.StatusBadRequest)	if err != nil {	id, err := primitive.ObjectIDFromHex(params["id"])	params := mux.Vars(r)	w.Header().Set("Content-Type", "application/json")func DeleteTask(w http.ResponseWriter, r *http.Request) {// DeleteTask はタスクを削除する}	json.NewEncoder(w).Encode(task)	collection.FindOne(ctx, bson.M{"_id": id}).Decode(&task)	var task model.Task	// 更新後のタスクを取得して返す	}		return		http.Error(w, `{"error": "タスクが見つかりません"}`, http.StatusNotFound)	if result.MatchedCount == 0 {	}		return		http.Error(w, `{"error": "タスクの更新に失敗しました"}`, http.StatusInternalServerError)		log.Printf("タスク更新エラー: %v", err)	if err != nil {	result, err := collection.UpdateOne(ctx, bson.M{"_id": id}, update)	defer cancel()	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)	collection := db.GetCollection(collectionName)	}		update["$set"].(bson.M)["status"] = req.Status	if req.Status != "" {	}		update["$set"].(bson.M)["description"] = req.Description	if req.Description != "" {	}		update["$set"].(bson.M)["title"] = req.Title	if req.Title != "" {	}		},			"updated_at": time.Now().Format(time.RFC3339),		"$set": bson.M{	update := bson.M{	}		return		http.Error(w, `{"error": "無効なリクエストです"}`, http.StatusBadRequest)	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {	var req model.UpdateTaskRequest	}		return		http.Error(w, `{"error": "無効なIDです"}`, http.StatusBadRequest)	if err != nil {	id, err := primitive.ObjectIDFromHex(params["id"])	params := mux.Vars(r)	w.Header().Set("Content-Type", "application/json")func UpdateTask(w http.ResponseWriter, r *http.Request) {// UpdateTask は既存のタスクを更新する}	json.NewEncoder(w).Encode(task)	w.WriteHeader(http.StatusCreated)	task.ID = result.InsertedID.(primitive.ObjectID)	}		return		http.Error(w, `{"error": "タスクの作成に失敗しました"}`, http.StatusInternalServerError)		log.Printf("タスク作成エラー: %v", err)	if err != nil {	result, err := collection.InsertOne(ctx, task)	defer cancel()	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)	collection := db.GetCollection(collectionName)	}		UpdatedAt:   now,		CreatedAt:   now,		Status:      "pending",		Description: req.Description,		Title:       req.Title,	task := model.Task{	now := time.Now().Format(time.RFC3339)	}		return		http.Error(w, `{"error": "タイトルは必須です"}`, http.StatusBadRequest)	if req.Title == "" {	}		return		http.Error(w, `{"error": "無効なリクエストです"}`, http.StatusBadRequest)	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {	var req model.CreateTaskRequest	w.Header().Set("Content-Type", "application/json")func CreateTask(w http.ResponseWriter, r *http.Request) {// CreateTask は新しいタスクを作成する}	json.NewEncoder(w).Encode(task)	}		return		http.Error(w, `{"error": "タスクが見つかりません"}`, http.StatusNotFound)	if err != nil {	err = collection.FindOne(ctx, bson.M{"_id": id}).Decode(&task)	var task model.Task	defer cancel()	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)	collection := db.GetCollection(collectionName)	}		return		http.Error(w, `{"error": "無効なIDです"}`, http.StatusBadRequest)	if err != nil {	id, err := primitive.ObjectIDFromHex(params["id"])	params := mux.Vars(r)	w.Header().Set("Content-Type", "application/json")func GetTask(w http.ResponseWriter, r *http.Request) {// GetTask は指定IDのタスクを取得する}	json.NewEncoder(w).Encode(tasks)	}		tasks = []model.Task{}	if tasks == nil {	}		return		http.Error(w, `{"error": "データの読み取りに失敗しました"}`, http.StatusInternalServerError)		log.Printf("カーソル読み取りエラー: %v", err)	if err := cursor.All(ctx, &tasks); err != nil {	var tasks []model.Task	defer cursor.Close(ctx)	}		return		http.Error(w, `{"error": "タスクの取得に失敗しました"}`, http.StatusInternalServerError)		log.Printf("タスク取得エラー: %v", err)	if err != nil {	cursor, err := collection.Find(ctx, bson.M{})	defer cancel()	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)	collection := db.GetCollection(collectionName)	w.Header().Set("Content-Type", "application/json")func GetTasks(w http.ResponseWriter, r *http.Request) {// GetTasks は全タスクを取得するconst collectionName = "tasks")	"github.com/study-ckad/backend/model"	"github.com/study-ckad/backend/db"	"go.mongodb.org/mongo-driver/bson/primitive"	"go.mongodb.org/mongo-driver/bson"	"github.com/gorilla/mux"	"time"	"net/http"	"log"	"encoding/json"	"context"
+	"context"
+	"encoding/json"
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"github.com/study-ckad/backend/db"
+	"github.com/study-ckad/backend/model"
+)
+
+const collectionName = "tasks"
+
+// GetTasks は全タスクを取得する
+func GetTasks(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	collection := db.GetCollection(collectionName)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Printf("タスク取得エラー: %v", err)
+		http.Error(w, `{"error": "タスクの取得に失敗しました"}`, http.StatusInternalServerError)
+		return
+	}
+	defer cursor.Close(ctx)
+
+	var tasks []model.Task
+	if err := cursor.All(ctx, &tasks); err != nil {
+		log.Printf("カーソル読み取りエラー: %v", err)
+		http.Error(w, `{"error": "データの読み取りに失敗しました"}`, http.StatusInternalServerError)
+		return
+	}
+
+	if tasks == nil {
+		tasks = []model.Task{}
+	}
+
+	json.NewEncoder(w).Encode(tasks)
+}
+
+// GetTask は指定IDのタスクを取得する
+func GetTask(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	params := mux.Vars(r)
+	id, err := primitive.ObjectIDFromHex(params["id"])
+	if err != nil {
+		http.Error(w, `{"error": "無効なIDです"}`, http.StatusBadRequest)
+		return
+	}
+
+	collection := db.GetCollection(collectionName)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var task model.Task
+	err = collection.FindOne(ctx, bson.M{"_id": id}).Decode(&task)
+	if err != nil {
+		http.Error(w, `{"error": "タスクが見つかりません"}`, http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(task)
+}
+
+// CreateTask は新しいタスクを作成する
+func CreateTask(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var req model.CreateTaskRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, `{"error": "無効なリクエストです"}`, http.StatusBadRequest)
+		return
+	}
+
+	if req.Title == "" {
+		http.Error(w, `{"error": "タイトルは必須です"}`, http.StatusBadRequest)
+		return
+	}
+
+	now := time.Now().Format(time.RFC3339)
+	task := model.Task{
+		Title:       req.Title,
+		Description: req.Description,
+		Status:      "pending",
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}
+
+	collection := db.GetCollection(collectionName)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	result, err := collection.InsertOne(ctx, task)
+	if err != nil {
+		log.Printf("タスク作成エラー: %v", err)
+		http.Error(w, `{"error": "タスクの作成に失敗しました"}`, http.StatusInternalServerError)
+		return
+	}
+
+	task.ID = result.InsertedID.(primitive.ObjectID)
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(task)
+}
+
+// UpdateTask は既存のタスクを更新する
+func UpdateTask(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	params := mux.Vars(r)
+	id, err := primitive.ObjectIDFromHex(params["id"])
+	if err != nil {
+		http.Error(w, `{"error": "無効なIDです"}`, http.StatusBadRequest)
+		return
+	}
+
+	var req model.UpdateTaskRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, `{"error": "無効なリクエストです"}`, http.StatusBadRequest)
+		return
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"updated_at": time.Now().Format(time.RFC3339),
+		},
+	}
+
+	if req.Title != "" {
+		update["$set"].(bson.M)["title"] = req.Title
+	}
+	if req.Description != "" {
+		update["$set"].(bson.M)["description"] = req.Description
+	}
+	if req.Status != "" {
+		update["$set"].(bson.M)["status"] = req.Status
+	}
+
+	collection := db.GetCollection(collectionName)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	result, err := collection.UpdateOne(ctx, bson.M{"_id": id}, update)
+	if err != nil {
+		log.Printf("タスク更新エラー: %v", err)
+		http.Error(w, `{"error": "タスクの更新に失敗しました"}`, http.StatusInternalServerError)
+		return
+	}
+
+	if result.MatchedCount == 0 {
+		http.Error(w, `{"error": "タスクが見つかりません"}`, http.StatusNotFound)
+		return
+	}
+
+	var task model.Task
+	collection.FindOne(ctx, bson.M{"_id": id}).Decode(&task)
+	json.NewEncoder(w).Encode(task)
+}
+
+// DeleteTask はタスクを削除する
+func DeleteTask(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	params := mux.Vars(r)
+	id, err := primitive.ObjectIDFromHex(params["id"])
+	if err != nil {
+		http.Error(w, `{"error": "無効なIDです"}`, http.StatusBadRequest)
+		return
+	}
+
+	collection := db.GetCollection(collectionName)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	result, err := collection.DeleteOne(ctx, bson.M{"_id": id})
+	if err != nil {
+		log.Printf("タスク削除エラー: %v", err)
+		http.Error(w, `{"error": "タスクの削除に失敗しました"}`, http.StatusInternalServerError)
+		return
+	}
+
+	if result.DeletedCount == 0 {
+		http.Error(w, `{"error": "タスクが見つかりません"}`, http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}

@@ -32,13 +32,15 @@ releases:
   # ------------------------------------------
   # 1. Ingress Controller (NGINX)
   # ------------------------------------------
-  - name: ingress-nginx
-    namespace: ingress-nginx
-    createNamespace: true
-    chart: ingress-nginx/ingress-nginx
-    version: "4.10.0"
-    wait: true
-    timeout: 300
+  # NOTE: minikube環境では `minikube addons enable ingress` で管理するため
+  #       helmfileからは除外。本番環境では以下のコメントを解除してください。
+  # - name: ingress-nginx
+  #   namespace: ingress-nginx
+  #   createNamespace: true
+  #   chart: ingress-nginx/ingress-nginx
+  #   version: "4.10.0"
+  #   wait: true
+  #   timeout: 300
 
   # ------------------------------------------
   # 2. cert-manager (TLS証明書管理)
