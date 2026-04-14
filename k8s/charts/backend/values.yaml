@@ -2,9 +2,9 @@
 replicaCount: 2
 
 image:
-  repository: study-ckad-backend
+  repository: localhost:5000/study-ckad/study-ckad-backend
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 service:
   type: ClusterIP

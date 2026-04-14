@@ -1,0 +1,22 @@
+# Harbor Container Registry 設定
+# Minikube環境向け（学習用）
+
+# NodePort で公開（Minikube Ingress経由でのアクセス用）
+expose:
+  type: nodePort
+  tls:
+    enabled: false
+
+# Harbor の外部URL
+externalURL: http://core.harbor.local
+
+# 管理者パスワード
+harborAdminPassword: Harbor12345
+
+# 学習環境のため永続化を無効化
+persistence:
+  enabled: false
+
+# Trivy脆弱性スキャナー（リソース節約のため無効）
+trivy:
+  enabled: false

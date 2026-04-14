@@ -29,6 +29,9 @@ repositories:
   # Ingress NGINX
   - name: ingress-nginx
     url: https://kubernetes.github.io/ingress-nginx
+  # Harbor Container Registry
+  - name: harbor
+    url: https://helm.goharbor.io
 
 # ==============================================
 # リリース定義
@@ -90,7 +93,20 @@ releases:
       - values/argocd.yaml
 
   # ------------------------------------------
-  # 5. MongoDB (データベース)
+  # 5. Harbor Container Registry
+  # ------------------------------------------
+  - name: harbor
+    namespace: harbor
+    createNamespace: true
+    chart: harbor/harbor
+    version: "1.18.3"
+    wait: true
+    timeout: 600
+    values:
+      - values/harbor.yaml
+
+  # ------------------------------------------
+  # 6. MongoDB (データベース)
   # ------------------------------------------
   - name: mongodb
     namespace: default
@@ -104,7 +120,7 @@ releases:
       - values/secrets/mongodb-secrets.yaml
 
   # ------------------------------------------
-  # 6. Dex (OIDC Provider - 認証基盤)
+  # 7. Dex (OIDC Provider - 認証基盤)
   # ------------------------------------------
   - name: dex
     namespace: default
@@ -113,7 +129,7 @@ releases:
     timeout: 300
 
   # ------------------------------------------
-  # 7. OAuth2 Proxy (認証プロキシ)
+  # 8. OAuth2 Proxy (認証プロキシ)
   # ------------------------------------------
   - name: oauth2-proxy
     namespace: default
@@ -124,7 +140,7 @@ releases:
       - default/dex
 
   # ------------------------------------------
-  # 8. Backend (Go API)
+  # 9. Backend (Go API)
   # ------------------------------------------
   - name: backend
     namespace: default
@@ -136,7 +152,7 @@ releases:
       - default/oauth2-proxy
 
   # ------------------------------------------
-  # 9. Frontend (React UI)
+  # 10. Frontend (React UI)
   # ------------------------------------------
   - name: frontend
     namespace: default
