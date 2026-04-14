@@ -1,0 +1,62 @@
+# Dex OIDC Provider Helm Chart デフォルト値
+replicaCount: 1
+
+image:
+  repository: ghcr.io/dexidp/dex
+  tag: v2.39.1
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 5556
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: dex.study-ckad.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+serviceAccount:
+  create: true
+  name: dex-sa
+  annotations: {}
+
+# Dex設定
+config:
+  # OIDCのissuer URL（ブラウザからアクセス可能なURL）
+  issuer: http://dex.study-ckad.local
+  storage:
+    type: memory
+  web:
+    http: 0.0.0.0:5556
+  # OAuth2 Proxyをクライアントとして登録
+  staticClients:
+    - id: oauth2-proxy
+      redirectURIs:
+        - http://study-ckad.local/oauth2/callback
+      name: OAuth2 Proxy
+      secret: oauth2-proxy-client-secret
+  # ローカル開発用の静的ユーザー
+  staticPasswords:
+    - email: admin@example.com
+      hash: "$2y$10$vMeMnQWVMf0g0Aa0ds5sDeKGp/fafezFZkqP26uZW39XJFRNtOid6"
+      username: admin
+      userID: "admin-001"
+    - email: user@example.com
+      hash: "$2y$10$vMeMnQWVMf0g0Aa0ds5sDeKGp/fafezFZkqP26uZW39XJFRNtOid6"
+      username: user
+      userID: "user-001"
+  enablePasswordDB: true

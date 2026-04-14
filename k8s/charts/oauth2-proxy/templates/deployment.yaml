@@ -1,0 +1,88 @@
+# CKAD学習ポイント: Deployment - OAuth2 Proxy（認証リバースプロキシ）
+# OAuth2 ProxyはOIDCプロバイダー（Dex）と連携し、
+# nginx ingress の auth_request パターンで認証を実現する
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "oauth2-proxy.fullname" . }}
+  labels:
+    {{- include "oauth2-proxy.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "oauth2-proxy.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "oauth2-proxy.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: {{ include "oauth2-proxy.serviceAccountName" . }}
+      containers:
+        - name: oauth2-proxy
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - --http-address=0.0.0.0:4180
+            - --provider=oidc
+            - --provider-display-name=Dex
+            - --client-id=$(OAUTH2_PROXY_CLIENT_ID)
+            - --client-secret=$(OAUTH2_PROXY_CLIENT_SECRET)
+            - --cookie-secret=$(OAUTH2_PROXY_COOKIE_SECRET)
+            - --cookie-name={{ .Values.config.cookieName }}
+            - --cookie-secure=false
+            - --redirect-url={{ .Values.config.redirectUrl }}
+            {{- range .Values.config.emailDomains }}
+            - --email-domain={{ . }}
+            {{- end }}
+            # OIDC Discovery を無効化し、エンドポイントを個別に指定
+            # （クラスタ内からissuer URLへのアクセスが困難なため）
+            - --skip-oidc-discovery=true
+            - --oidc-issuer-url={{ .Values.config.oidcIssuerUrl }}
+            - --login-url={{ .Values.config.oidcIssuerUrl }}/auth
+            - --redeem-url={{ .Values.config.dexInternalUrl }}/token
+            - --oidc-jwks-url={{ .Values.config.dexInternalUrl }}/keys
+            - --insecure-oidc-skip-issuer-verification=true
+            # upstream は static://200 （auth_request パターン用）
+            - --upstream=static://200
+            - --reverse-proxy=true
+            - --set-xauthrequest=true
+            - --pass-access-token=true
+            - --skip-provider-button=true
+            - --scope=openid email profile
+          ports:
+            - name: http
+              containerPort: 4180
+              protocol: TCP
+          env:
+            - name: OAUTH2_PROXY_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "oauth2-proxy.fullname" . }}
+                  key: client-id
+            - name: OAUTH2_PROXY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "oauth2-proxy.fullname" . }}
+                  key: client-secret
+            - name: OAUTH2_PROXY_COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "oauth2-proxy.fullname" . }}
+                  key: cookie-secret
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

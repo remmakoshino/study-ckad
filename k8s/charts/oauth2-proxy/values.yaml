@@ -1,0 +1,53 @@
+# OAuth2 Proxy Helm Chart デフォルト値
+replicaCount: 1
+
+image:
+  repository: quay.io/oauth2-proxy/oauth2-proxy
+  tag: v7.6.0
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 4180
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: study-ckad.local
+      paths:
+        - path: /oauth2
+          pathType: Prefix
+  tls: []
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+serviceAccount:
+  create: true
+  name: oauth2-proxy-sa
+  annotations: {}
+
+# OAuth2 Proxy 設定
+config:
+  # OIDCプロバイダー（Dex）の設定
+  clientID: oauth2-proxy
+  clientSecret: oauth2-proxy-client-secret
+  # Cookie暗号化用シークレット（32バイト、base64エンコード）
+  cookieSecret: APSd53jtZFsNQnEKrAyKE5b5-LAgOUf4YTkJCMtdeSo=
+  cookieName: _oauth2_proxy
+  # 全メールドメインを許可（ローカル開発用）
+  emailDomains:
+    - "*"
+  # OIDC設定（Dex）
+  oidcIssuerUrl: http://dex.study-ckad.local
+  # Dexのクラスタ内部URL
+  dexInternalUrl: http://dex:5556
+  # リダイレクトURL
+  redirectUrl: http://study-ckad.local/oauth2/callback

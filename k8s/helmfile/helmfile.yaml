@@ -104,7 +104,27 @@ releases:
       - values/secrets/mongodb-secrets.yaml
 
   # ------------------------------------------
-  # 6. Backend (Go API)
+  # 6. Dex (OIDC Provider - 認証基盤)
+  # ------------------------------------------
+  - name: dex
+    namespace: default
+    chart: ../charts/dex
+    wait: true
+    timeout: 300
+
+  # ------------------------------------------
+  # 7. OAuth2 Proxy (認証プロキシ)
+  # ------------------------------------------
+  - name: oauth2-proxy
+    namespace: default
+    chart: ../charts/oauth2-proxy
+    wait: true
+    timeout: 300
+    needs:
+      - default/dex
+
+  # ------------------------------------------
+  # 8. Backend (Go API)
   # ------------------------------------------
   - name: backend
     namespace: default
@@ -113,9 +133,10 @@ releases:
     timeout: 300
     needs:
       - default/mongodb
+      - default/oauth2-proxy
 
   # ------------------------------------------
-  # 7. Frontend (React UI)
+  # 9. Frontend (React UI)
   # ------------------------------------------
   - name: frontend
     namespace: default
@@ -124,3 +145,4 @@ releases:
     timeout: 300
     needs:
       - default/backend
+      - default/oauth2-proxy
